@@ -8,9 +8,12 @@ from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeo
 # ---------------------------------------------------------
 # Configuration & Environment Variables
 # ---------------------------------------------------------
+# Ensure all files (.env, session, screenshots) are anchored to the script's folder
+SCRIPT_DIR = Path(__file__).resolve().parent
+
 def load_env_file():
     """Load key-value pairs from .env if present (without requiring python-dotenv)."""
-    env_path = Path(".env")
+    env_path = SCRIPT_DIR / ".env"
     if env_path.is_file():
         with open(env_path, "r", encoding="utf-8") as f:
             for line in f:
@@ -28,7 +31,7 @@ EMAIL = os.getenv("NAUKRI_EMAIL", "soujannyaroy@gmail.com")
 PASSWORD = os.getenv("NAUKRI_PASSWORD", "")
 DEFAULT_OLD_TITLE = "Software Engineer 1"
 DEFAULT_NEW_TITLE = "Software Engineer"
-SESSION_FILE = "naukri_session.json"
+SESSION_FILE = SCRIPT_DIR / "naukri_session.json"
 PROFILE_URL = "https://www.naukri.com/mnjuser/profile"
 LOGIN_URL = "https://www.naukri.com/nlogin/login"
 
@@ -298,7 +301,7 @@ def ensure_login(context, page, email: str, password: str) -> bool:
         page.wait_for_selector("#usernameField", state="visible", timeout=15000)
     except PlaywrightTimeoutError:
         print("[!] Could not find #usernameField on login page.")
-        page.screenshot(path="error_login_page.png")
+        page.screenshot(path=str(SCRIPT_DIR / "error_login_page.png"))
         return False
 
     page.fill("#usernameField", email)
@@ -330,14 +333,14 @@ def ensure_login(context, page, email: str, password: str) -> bool:
     # Check if login succeeded
     if is_authenticated_profile_page(page):
         try:
-            context.storage_state(path=SESSION_FILE)
+            context.storage_state(path=str(SESSION_FILE))
             print(f"[+] Session saved to '{SESSION_FILE}' for future runs.")
         except Exception as e:
             print(f"[-] Could not save session: {e}")
         return True
     else:
         print("[!] Login verification failed: Still not on authenticated profile page.")
-        page.screenshot(path="error_login_failed.png")
+        page.screenshot(path=str(SCRIPT_DIR / "error_login_failed.png"))
         return False
 
 
@@ -382,9 +385,9 @@ def update_tagline(
             "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36",
             "viewport": {"width": 1280, "height": 800}
         }
-        if Path(SESSION_FILE).is_file():
+        if SESSION_FILE.is_file():
             print(f"[+] Loading existing session state from '{SESSION_FILE}'")
-            context_args["storage_state"] = SESSION_FILE
+            context_args["storage_state"] = str(SESSION_FILE)
 
         context = browser.new_context(**context_args)
         page = context.new_page()
@@ -423,11 +426,11 @@ def update_tagline(
             print("[*] Opening Employment edit modal...")
             if not open_current_employment_edit(page, title_hint="Software Engineer"):
                 print("[!] Failed to locate Employment edit pencil.")
-                page.screenshot(path="error_employment_edit_not_found.png")
+                page.screenshot(path=str(SCRIPT_DIR / "error_employment_edit_not_found.png"))
                 return False
 
-            # page.screenshot(path="employment_edit_opened.png")
-            print("[+] Saved screenshot of opened form to 'employment_edit_opened.png'")
+            page.screenshot(path=str(SCRIPT_DIR / "employment_edit_opened.png"))
+            print(f"[+] Saved screenshot of opened form to '{SCRIPT_DIR / 'employment_edit_opened.png'}'")
 
             # Step 4: Find Designation input field
             print(f"[*] Locating designation input (looking for '{current_tagline or old_title}')...")
@@ -435,8 +438,8 @@ def update_tagline(
 
             if not desg_input:
                 print("[!] Designation input not found in Employment form.")
-                page.screenshot(path="error_input_not_found.png")
-                print("[!] Saved error screenshot to 'error_input_not_found.png'")
+                page.screenshot(path=str(SCRIPT_DIR / "error_input_not_found.png"))
+                print(f"[!] Saved error screenshot to '{SCRIPT_DIR / 'error_input_not_found.png'}'")
                 return False
 
             # Step 5: Update the field with the new title
@@ -455,8 +458,8 @@ def update_tagline(
             # Step 6: Save changes or Dry Run
             if dry_run:
                 print(f"[+] DRY-RUN SUCCESS: Form populated with '{effective_target}'. (Not saved)")
-                # page.screenshot(path="dry_run_success.png")
-                print("[+] Saved inspection screenshot to 'dry_run_success.png'")
+                page.screenshot(path=str(SCRIPT_DIR / "dry_run_success.png"))
+                print(f"[+] Saved inspection screenshot to '{SCRIPT_DIR / 'dry_run_success.png'}'")
                 return True
 
             print("[*] Saving changes...")
@@ -470,7 +473,7 @@ def update_tagline(
 
             # Update saved session
             try:
-                context.storage_state(path=SESSION_FILE)
+                context.storage_state(path=str(SESSION_FILE))
             except Exception:
                 pass
 
@@ -483,22 +486,22 @@ def update_tagline(
             updated_tagline = get_current_designation(page)
             print(f"[+] Current tagline on profile after save: '{updated_tagline}'")
 
-            # page.screenshot(path="profile_tagline_updated.png")
-            print("[+] Saved verification screenshot to 'profile_tagline_updated.png'")
+            page.screenshot(path=str(SCRIPT_DIR / "profile_tagline_updated.png"))
+            print(f"[+] Saved verification screenshot to '{SCRIPT_DIR / 'profile_tagline_updated.png'}'")
 
             if effective_target.lower() in updated_tagline.lower():
                 print(f"\n[SUCCESS] Profile tagline successfully updated to '{effective_target}'!")
                 return True
             else:
                 print(f"\n[?] Warning: Detected tagline '{updated_tagline}' differs from target '{effective_target}'.")
-                print("    Please check 'profile_tagline_updated.png' to review the result.")
+                print(f"    Please check '{SCRIPT_DIR / 'profile_tagline_updated.png'}' to review the result.")
                 return False
 
         except Exception as e:
             print(f"[!] An error occurred during automation: {e}")
             try:
-                page.screenshot(path="error_exception.png")
-                print("[+] Saved error screenshot to 'error_exception.png'")
+                page.screenshot(path=str(SCRIPT_DIR / "error_exception.png"))
+                print(f"[+] Saved error screenshot to '{SCRIPT_DIR / 'error_exception.png'}'")
             except Exception:
                 pass
             return False
