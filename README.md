@@ -1,29 +1,3 @@
-# Naukri Tagline Updater (`update_tagline.py`)
-
-Automates updating your Naukri profile tagline / designation (e.g., toggling between `Software Engineer 1` and `Software Engineer`) using Playwright.
-
----
-
-## Why the Employment Section?
-
-On Naukri, the designation/tagline shown under your name (`.desg.typ-16Bold`) is dynamically derived from your **current role in the Employment section**. 
-
-The **Basic Details** modal (pencil icon next to your name) only edits Name, Experience, Location, Notice Period, and CTC—it does **not** contain a Designation field. Therefore, updating the tagline requires updating your current position under Employment.
-
----
-
-## Features
-
-- **Session Persistence**: Stores cookies in `naukri_session.json` to bypass repeated logins and CAPTCHAs.
-- **Toggle Mode (`--toggle`)**: Alternates between two designated titles to refresh profile activity timestamps.
-- **Dry-Run Mode (`--dry-run`)**: Validates DOM selectors and fills inputs without saving changes.
-- **Robust Selectors**: Multi-layer fallback selectors tailored to Naukri's Employment DOM structure.
-- **Auto-Suggestion Handling**: Automatically selects exact matches from Naukri's designation dropdown.
-- **Headed & Headless Modes**: Runs headed by default for visibility; supports headless execution for background jobs.
-- **Visual Verification**: Saves before and after screenshots (`profile_tagline_updated.png`, `dry_run_success.png`, or `error_exception.png`) for auditability.
-
----
-
 ## Prerequisites
 
 1. **Python 3.8+**
@@ -66,6 +40,16 @@ Run silently in the background:
 ```bash
 python update_tagline.py --headless --toggle
 ```
+
+## Features
+
+- **Session Persistence**: Stores cookies in `naukri_session.json` to bypass repeated logins and CAPTCHAs.
+- **Toggle Mode (`--toggle`)**: Alternates between two designated titles to refresh profile activity timestamps.
+- **Dry-Run Mode (`--dry-run`)**: Validates DOM selectors and fills inputs without saving changes.
+- **Robust Selectors**: Multi-layer fallback selectors tailored to Naukri's Employment DOM structure.
+- **Auto-Suggestion Handling**: Automatically selects exact matches from Naukri's designation dropdown.
+- **Headed & Headless Modes**: Runs headed by default for visibility; supports headless execution for background jobs.
+- **Visual Verification**: Saves before and after screenshots (`profile_tagline_updated.png`, `dry_run_success.png`, or `error_exception.png`) for auditability.
 
 ---
 
