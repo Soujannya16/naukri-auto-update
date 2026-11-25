@@ -1,26 +1,3 @@
-"""
-update_tagline.py
-
-Automates updating the Naukri profile tagline / designation (e.g., from 'Software Engineer 1'
-to 'Software Engineer') using Playwright.
-
-Why Employment Section?
-On Naukri.com, the tagline under the candidate's name (<div class="desg typ-16Bold">)
-is dynamically derived from the CURRENT role in the 'Employment' section (e.g., 'at Best Buy').
-The 'Basic Details' modal (pencil next to name) only holds Name, Experience, Location,
-Notice Period, and CTC — it does NOT contain the Designation field.
-Hence, updating the tagline requires editing the current job under Employment.
-
-Features:
-- Headed & Headless modes (headed by default for testing/visibility)
-- Session persistence (`naukri_session.json`) to bypass repetitive logins and CAPTCHAs
-- Multi-layer fallback selectors matching Naukri's Employment DOM
-- Auto-suggestion dropdown handling for job titles
-- Dry-run mode (`--dry-run`) to test element discovery without modifying profile
-- Toggle mode (`--toggle`) to alternate between two titles (e.g., for profile freshness)
-- Automatic before & after screenshot verification
-"""
-
 import argparse
 import os
 import sys
